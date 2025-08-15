@@ -1,0 +1,19 @@
+include:
+  - project: 'docker/deploy/deploy-templates'
+    file:
+      - 'yaml/.gitlab-ci-set-variables.yml'
+      - 'yaml/.gitlab-ci-build.yml'
+      - 'yaml/.gitlab-ci-deploy.yml'
+
+stages:
+  - set-variables
+  - build
+  - deploy
+
+build:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+
+deploy:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
