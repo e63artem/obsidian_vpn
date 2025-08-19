@@ -1,6 +1,7 @@
 import asyncio
 import os
 from functools import wraps
+from collections import defaultdict
 
 from aiogram.fsm.context import FSMContext
 
@@ -8,8 +9,10 @@ from logger.file_logger import CustomLogger
 from config import BASE_DIR
 
 
+msg_ids = defaultdict(set)
+
+
 user_country = {}
-msg_ids: dict[int, set] = {0: {0}}
 base_dir = os.path.join(BASE_DIR, 'logger', 'logs')
 logger = CustomLogger('bot_log', base_dir=base_dir)
 logger.info('logger initialized')
@@ -28,7 +31,7 @@ captions: dict[str, str] = {
 def auto_state_clear(timeout=900):
     def decorator(func):
         @wraps(func)
-        async def wrapper(message, state, *args, **kwargs):
+        async def wrapper(message, state: FSMContext, *args, **kwargs):
             user_id = message.from_user.id
 
             if user_id in user_timers:
