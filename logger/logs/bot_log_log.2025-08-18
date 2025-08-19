@@ -1,0 +1,15 @@
+[2025-08-18 11:40:00,018] INFO bot_log: [2025-08-18 11:40:00.018209] Уменьшены дни подписки у пользователей
+[2025-08-18 16:31:51,668] ERROR bot_log: Ошибка при удалении сообщений для пользователя 388938261
+[2025-08-18 16:32:11,122] INFO bot_log: Пользователь выбрал android
+[2025-08-18 16:32:11,644] INFO bot_log: Пользователь найден
+[2025-08-18 16:32:11,645] INFO bot_log: Номер телефона найден: +79379955640
+[2025-08-18 16:32:11,645] INFO bot_log: Email найден: evseev4artem@gmail.com
+[2025-08-18 16:32:13,868] INFO bot_log: 1
+[2025-08-18 16:32:16,552] INFO bot_log: updating invoice
+[2025-08-18 16:32:16,560] INFO bot_log: {'id': 6, 'uid': 388938261, 'config_id': None, 'summary': 299, 'use_credits': False, 'number_of_configs': 1, 'days_to_increase': 30, 'paid': False, 'paid_at': None, 'created_at': '2025-08-18'}
+[2025-08-18 16:32:20,185] INFO bot_log: 1
+[2025-08-18 16:32:20,185] INFO bot_log: 299
+[2025-08-18 16:32:20,190] INFO bot_log: Пользователь найден
+[2025-08-18 16:32:20,191] INFO bot_log: Номер телефона найден: +79379955640
+[2025-08-18 16:32:20,191] INFO bot_log: Email найден: evseev4artem@gmail.com
+[2025-08-18 16:33:01,739] INFO bot_log: {'id': 13, 'file_id': '17ev8b0uCuX5-u937AanFHgNQdG2hUbHf', 'filename': '/srv/telegram-bot/vpn_configs/14.conf', 'assigned': True, 'expired': '2025-09-17', 'device': 'android', 'uid': 388938261}

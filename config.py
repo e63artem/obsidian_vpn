@@ -20,3 +20,4 @@ class Config:
     FOLDER_ID = os.getenv('FOLDER_ID')
     PROVIDER_TOKEN = os.getenv('PROVIDER_TOKEN')
     CHANNEL_ID = os.getenv('CHANNEL_ID')
+    ADMIN_ID = os.getenv('ADMIN_ID')

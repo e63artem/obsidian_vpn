@@ -137,6 +137,10 @@ close_instruction = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='Скрыть инструкцию', callback_data='close')]
 ])
 
+clear = InlineKeyboardMarkup(inline_keyboard=[
+    [InlineKeyboardButton(text="Скрыть уведомление", callback_data='close')]
+])
+
 
 def back_to_acc(device_id: int):
     markup = InlineKeyboardMarkup(inline_keyboard=[

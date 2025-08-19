@@ -127,10 +127,11 @@ async def get_all_users() -> list[dict]:
         return [user.as_dict() for user in users.scalars()]
 
 
-async def get_all_configs() -> list[dict]:
+async def get_all_configs() -> list[dict] | None:
     async with async_session() as session:
-        configs = await session.execute(select(VpnConfig))
-        return [conf.as_dict() for conf in configs.scalars()]
+        result = await session.execute(select(VpnConfig))
+        configs = [conf.as_dict() for conf in result.scalars()]
+        return configs or None
 
 
 async def get_config_by_id(config_id):

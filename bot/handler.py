@@ -98,22 +98,34 @@ async def start(message: Message):
                                reply_markup=kb.start_keyboard)
 
 
+async def check_configs(callback: CallbackQuery) -> bool:
+    configs = await db.get_all_configs()
+    if not configs or all(conf["assigned"] for conf in configs):
+        await callback.answer('⚠️ Ошибка ⚠️')
+        await callback.message.answer(
+            '⚠️ Сейчас нет доступных конфигураций, попробуйте ещё раз через 10 минут',
+            reply_markup=kb.clear
+        )
+        await bot.send_message(
+            Config.ADMIN_ID,
+            'У вас закончились конфигурации, необходимо добавить ещё'
+        )
+        return False
+    return True
+
+
 @dp.callback_query()
 @auto_state_clear()
 async def callback_handler(callback: CallbackQuery, state: FSMContext):
     uid = callback.from_user.id
     data = callback.data
     message = callback.message
-    if uid not in msg_ids:
-        msg_ids[uid] = set()
     if data == 'main_menu':
         await state.clear()
         try:
             await db.delete_invoice(uid)
         except Exception as e:
             logger.info(f'{e}')
-        if uid not in msg_ids:
-            msg_ids[uid] = set()
         try:
             await bot.delete_messages(uid, list(msg_ids[uid]))
             await message.delete()
@@ -170,19 +182,17 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
             )
             msg_ids[uid].add(msg.message_id)
         await state.set_state(States.phone_number)
-        if uid not in msg_ids:
-            msg_ids[uid] = set()
         msg_ids[uid].add(message.message_id)
         logger.info(f'{user[uid]}')
     elif data == 'connect_vpn':
-        await callback.answer("Ваше устройство")
+        if not await check_configs(callback):
+            return
+        await callback.answer("Выберите устройство")
         media = InputMediaPhoto(
             media=FSInputFile(path=os.path.join(config.BASE_DIR, 'static/img.png')),
             caption='Ваше устройство ⤵️'
         )
         msg = await message.edit_media(media, reply_markup=kb.choose_device)
-        if uid not in msg_ids:
-            msg_ids[uid] = set()
         msg_ids[uid].add(msg.message_id)
     elif data.startswith('tariff_'):
         await callback.answer("Оплата")
@@ -250,8 +260,6 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
     # -------------------------Реферальная программа-------------------------
     elif data == 'referral':
         await callback.answer('Реферальная программа')
-        if uid not in msg_ids:
-            msg_ids[uid] = set()
         msg_ids[uid].add(message.message_id)
         bot_info = await bot.me()
         ref_code = f'https://t.me/{bot_info.username}?start={uid}'
@@ -299,8 +307,6 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
                             reply_markup=reply_markup,
                             parse_mode='HTML'
                         )
-                    if uid not in msg_ids:
-                        msg_ids[uid] = set()
                     msg_ids[uid].add(msg.message_id)
                 except Exception as e:
                     logger.error(f"Ошибка при отправке уведомления {headers[i]} для {uid}: {e}")
@@ -391,12 +397,13 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
                                                 )
         except Exception as e:
             logger.error(f"{e}")
-        msg_ids[uid] = set()
         msg_ids[uid].add(invoice.message_id)
         back_msg = await message.answer('Вернуться в главное меню ⤵️',
                                         reply_markup=kb.main_menu)
         msg_ids[uid].add(back_msg.message_id)
     elif data == 'add_device':
+        if not await check_configs(callback):
+            return
         media = InputMediaPhoto(
             media=FSInputFile(path=os.path.join(config.BASE_DIR, 'static/img.png')),
             caption='Ваше устройство ⤵️'
