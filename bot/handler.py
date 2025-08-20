@@ -61,14 +61,14 @@ async def start_with_deeplink(message: Message, command: CommandObject):
         ref_id = command.args
         await db.update_user(uid, is_referrer=True)
     if int(ref_id) == uid:
-        await message.answer('<b>Мне кажется, это плохая идея - '
-                             'посылать реферальную ссылку самому себе!</b>',
+        await message.answer('<b>Вы не можете быть рефералом'
+                             'для самого себя</b>',
                              parse_mode='HTML')
         ref_id = None
     try:
-        msg = await bot.send_message(ref_id, 'Вашей реферальной ссылкой воспользовались! '
-                                             'Теперь вы будете получать 25% от покупок вашего друга, а он - '
-                                             '25% кешбека от своих покупок☺️')
+        msg = await bot.send_message(ref_id, '✅ Вашей реферальной ссылкой воспользовались!'
+                                             'Вы будете получать 25% от покупок вашего реферала'
+                                             'Он - 25% кешбека от своих покупок')
         _ = asyncio.create_task(delete_message_after(msg))
     except TelegramBadRequest:
         pass
@@ -79,7 +79,7 @@ async def start_with_deeplink(message: Message, command: CommandObject):
         await message.answer_photo(FSInputFile(path=os.path.join(config.BASE_DIR, 'static/img.png')),
                                    reply_markup=kb.start_keyboard)
     else:
-        await message.answer('Вы ранее уже активировали реферальную ссылку')
+        await message.answer('❌ Вы ранее уже активировали реферальную ссылку')
         await message.answer_photo(FSInputFile(path=os.path.join(config.BASE_DIR, 'static/img.png')),
                                    reply_markup=kb.start_keyboard)
 
@@ -155,8 +155,9 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
                         'email': email,
                         'device': device
                     }
-                    msg = await message.answer('Нужное Вам количество устройств:',
-                                               #'количество устройств, которое вы хотите подключить',
+                    msg = await message.answer('Для скольки устройств вы хотите подключить VPN?\n'
+                                            'Введите число от 1 до 100 или выберете вариант на клавиатуре\n\n'
+                                            '(цены указаны за 1 устройство)',
                                                reply_markup=kb.nums)
                     msg_ids[uid].add(msg.message_id)
                     return
@@ -168,16 +169,17 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
         }
         try:
             msg = await message.edit_caption(
-                caption='Перед тем, как перейти к оплате, '
-                        'вам необходимо зарегистрироваться. '
-                        'Для начала, введите номер телефона по форме +79990000000:',
+                caption='Необходимо зарегистрироваться,\n'
+                        'для получения электронного чека: \n\n'
+                        'Введите номер телефона по форме +79990000000',
                 reply_markup=kb.main_menu
             )
             msg_ids[uid].add(msg.message_id)
         except TelegramBadRequest:
             msg = await message.edit_text(
-                'Перед тем, как перейти к оплате, вам необходимо зарегистрироваться. '
-                'Для начала, введите номер телефона по форме +79990000000:',
+                        'Необходимо зарегистрироваться,'
+                        'для получения электронного чека: \n\n'
+                        'Введите номер телефона по форме +79990000000',
                 reply_markup=kb.main_menu
             )
             msg_ids[uid].add(msg.message_id)
@@ -263,9 +265,9 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
         msg_ids[uid].add(message.message_id)
         bot_info = await bot.me()
         ref_code = f'https://t.me/{bot_info.username}?start={uid}'
-        await message.answer('🔥 Вам - 20% от каждого пополнения\n'
+        await message.answer('🔥 Вам - 25% от каждого пополнения\n'
                              #'каждого, кто перейдет по вашей ссылке\n'
-                             '🎁 Рефералу - скидка 20% на все тарифы\n'
+                             '🎁 Рефералу - скидка 25% на все тарифы\n'
                              '📍Количество рефералов не ограничено\n\n'
                              'Просто отправьте эту ссылку:\n\n'
                              f'<code>{ref_code}</code>',
@@ -305,7 +307,8 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
                             chat_id=uid,
                             text=f'<b>{headers[i].capitalize()}</b>\n\n{texts[i]}',
                             reply_markup=reply_markup,
-                            parse_mode='HTML'
+                            parse_mode='HTML',
+                            disable_web_page_preview=True
                         )
                     msg_ids[uid].add(msg.message_id)
                 except Exception as e:
@@ -398,7 +401,7 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
         except Exception as e:
             logger.error(f"{e}")
         msg_ids[uid].add(invoice.message_id)
-        back_msg = await message.answer('Вернуться в главное меню ⤵️',
+        back_msg = await message.answer('Вернуться в главное меню',
                                         reply_markup=kb.main_menu)
         msg_ids[uid].add(back_msg.message_id)
     elif data == 'add_device':
@@ -484,7 +487,8 @@ async def callback_handler(callback: CallbackQuery, state: FSMContext):
                             chat_id=uid,
                             text=f'<b>{headers[i].capitalize()}</b>\n\n{texts[i]}',
                             reply_markup=kb.close_instruction,
-                            parse_mode='HTML'
+                            parse_mode='HTML',
+                            disable_web_page_preview=True
                             )
         else:
             await message.edit_caption(caption='К сожалению, инструкция сейчас недоступна...',
@@ -532,7 +536,7 @@ async def phone_number_handler(message: Message, state: FSMContext):
         msg_ids[uid].add(msg.message_id)
         return
     user[uid]['phone'] = phone_num
-    msg = await message.answer('Теперь введите ваш email:')
+    msg = await message.answer('Введите E-mail для отправки чека')
     msg_ids[uid].add(msg.message_id)
     await state.set_state(States.email)
 
@@ -544,7 +548,7 @@ async def email_handler(message: Message, state: FSMContext):
     email = message.text
     email_pattern = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
     if not email_pattern.match(email):
-        msg = await message.answer("❌ Некорректный email. Попробуйте ещё раз.")
+        msg = await message.answer("❌ Некорректный E-mail. Попробуйте ещё раз.")
         msg_ids[uid].add(msg.message_id)
         return
     await state.clear()
@@ -556,8 +560,9 @@ async def email_handler(message: Message, state: FSMContext):
     await db.update_user(uid, **kw)
     # photo = FSInputFile(path=os.path.join(config.BASE_DIR, 'static/img.png'))
     msg = await message.answer(
-        'Введите (только числом) или выберите на клавиатуре '
-        'количество конфигураций, которое вы хотите приобрести',
+        'Для скольки устройств вы хотите подключить VPN?\n'
+        'Введите число от 1 до 100 или выберете вариант на клавиатуре\n\n'
+        '(цены указаны за 1 устройство)',
         reply_markup=kb.nums
     )
     msg_ids[uid].add(msg.message_id)
@@ -622,8 +627,10 @@ async def successful_payment_handler(message: Message):
             )
             media_group.append(media)
         await message.answer_media_group(media_group)
-        await message.answer('Чтобы получить инструцкию, нажмите кнопку ниже:',
-                             reply_markup=kb.get_instruction(user[uid]['device']))
+        await message.answer('Инструкция по кнопке ниже ⤵️',
+                             reply_markup=kb.get_instruction(user[uid]['device']),
+                             parse_mode="HTML",
+                             disable_web_page_preview=True)
     else:
         conf_info = await db.get_config_by_id(config_id)
         expired_date = datetime.strptime(conf_info['expired'], '%Y-%m-%d')
@@ -631,9 +638,9 @@ async def successful_payment_handler(message: Message):
         exp_date_str = new_expired_date.strftime('%Y-%m-%d')
         await db.update_exp_date(config_id, exp_date_str)
         device = conf_info['device']
-        await message.answer(f'🔄 Ваша подписка для {device} продлена на {days} дней.')
-    photo = FSInputFile(path=os.path.join(config.BASE_DIR, 'static/img.png'))
-    await message.answer_photo(photo, reply_markup=kb.start_keyboard)
+        await message.answer(f'Ваша подписка для конфигурации {device} продлена на {days} дней.')
+#    photo = FSInputFile(path=os.path.join(config.BASE_DIR, 'static/img.png'))
+#    await message.answer_photo(photo, reply_markup=kb.start_keyboard)
 
 
 async def check_subscriptions():

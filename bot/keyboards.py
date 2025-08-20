@@ -110,7 +110,7 @@ add_device = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='IOS', callback_data='ios')],
     [InlineKeyboardButton(text='ANDROID', callback_data='android')],
     [InlineKeyboardButton(text='WINDOWS', callback_data='windows')],
-    [InlineKeyboardButton(text='MACOS', callback_data='mac')],
+    [InlineKeyboardButton(text='MAC', callback_data='mac')],
     [InlineKeyboardButton(text='Главное меню', callback_data='main_menu')]
 ])
 
@@ -118,7 +118,7 @@ choose_device = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text='IOS', callback_data='choose_ios')],
     [InlineKeyboardButton(text='ANDROID', callback_data='choose_android')],
     [InlineKeyboardButton(text='WINDOWS', callback_data='choose_windows')],
-    [InlineKeyboardButton(text='MACOS', callback_data='choose_mac')],
+    [InlineKeyboardButton(text='MAC', callback_data='choose_mac')],
     [InlineKeyboardButton(text='Главное меню', callback_data='main_menu')]
 ])
 phone = ReplyKeyboardMarkup(keyboard=[
